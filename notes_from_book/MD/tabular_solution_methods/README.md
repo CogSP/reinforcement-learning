@@ -135,7 +135,7 @@ Associative search tasks are intermediate between the k-armed bandit problem (ju
 
 ## Parameter study
 
-<img src="images/tabular-solution/parameter-study.png" alt="parameter study" width="393" height="219">
+<img src="images/parameter-study.png" alt="parameter study" width="393" height="219">
 
 
 You can see the characteristic inverted-U shapes: the algorithms perform best at an intermediate value of their parameter.
