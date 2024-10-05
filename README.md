@@ -7,7 +7,7 @@ Resources for the Sapienza RL course, held by Prof. Capobianco a.y. 2024/2025
 
 ## Didactic Material
 - [Classroom](https://classroom.google.com/c/NTI4MTc5Mzg4NDUw)
-- Textbooks: two available textbooks [here](https://drive.google.com/drive/folders/1ajaJrIBe5KtsdnN_EKiMtiTREWw2_Qh6)
+- Textbooks: two textbooks available [here](https://drive.google.com/drive/folders/1ajaJrIBe5KtsdnN_EKiMtiTREWw2_Qh6)
 - [Official Github repository](https://github.com/KRLGroup/RL_2024) of the course
 
 
