@@ -2,7 +2,7 @@
 Resources for the Sapienza RL course, held by Prof. Capobianco
 
 
-![logo](readme_image.jpeg)
+![logo](readme_image.png)
 
 
 ## Didactic Material
