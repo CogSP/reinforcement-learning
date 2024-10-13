@@ -155,13 +155,17 @@ MDP involves evaluative feedback as in bandits, but also an associative aspect: 
 ## Agent-Environment Interface
 
 The agent select actions and the environment responds to these actions and presents new situations (state) to the agent. The two interacts at each of a sequence of discrete time step $t = 0, 1, ...$. At each time step $t$ the agent receives some representation of the environment state $S_t \in S$ and on that basis select an action $A_t \in A(S)$. To simplify notation we often assume that the action set is the same in all states, writing $A$. One time step later (so at $t + 1$), the agent receives the reward $R_{t+1}$ and finds itself in a new state. So the sequence is this one:
+
 $$
 S_0 \ A_0 \ R_1 \ S_1 \ A_1 \ R_2 \ ...
 $$
+
 In a finite MDP $S$, $A$ and $R$ are finite and the random variables $R_t$ and $S_t$ have discrete probability distrbutino that depends only on the preceding state and action, so:
+
 $$
 p(s', r | s, a) = Pr\{S_t=s', R_t = r | S_{t-1} = s, A_{t-1} = a\}
 $$
+
 This function $p$ defines the environment dynamics in the MDP. Since the new state and reward depends only on the **immediately preceding** state and action, the state must include information about all aspects of all the past agent-environment interaction. If it does, the state is said to have the **Markov Property**. Other quantities that we may want to know:
 - state transition probability: $p(s' | s, a) = Pr{S_t = s' | S_{t-1} = s, A_{t-1} = a}$
 - expected rewards for state-action pairs: $r(s,a) = E[R_t | S_{t-1} = s, A_{t-1} = a]$
@@ -176,13 +180,17 @@ The goal of the agent is to maximixe not immediate reward, but the expected valu
 ## Returns and Episodes
 
 An episode is a subsequence of the whole agent-environment interaction sequence. For instance, if we are playing chess, a game is an episode. Each episode ends in a terminal state, followed by a reset to a starting state. Each episode is begins independently of how the previous one ended. If the task is episodic, you may want to return
+
 $$
 G_t = R_{t+1} + .. + R_{T}
 $$
+
 But what if the interaction doesn't break naturally in subsequences? Like an always on-going process-control task? In that case $T = \infty$, so the return $G_t$ it's infinite.  In this case we use the discounted return:
+
 $$
 G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + … = R_{t+1} + \gamma G_{t+1}
 $$
+
 where $\gamma$ is the discount rate. 
 - If $\gamma < 1$ we have that $G_t$ has a finite value as long as the reward sequence $\{R_k\}$ is bounded. 
 - If $\gamma = 0$ the agent is myopic and maximizes the immediate reward. 
@@ -192,36 +200,47 @@ where $\gamma$ is the discount rate.
 ## Policies and Value Functions
 
 The value functions $v(s) estimate how good is for the agent to be in a certain state, or to perform a certain action in a certain state. The notion of "how good" is defined in terms of expected future rewards. Value functions use policies, so they are actually $v_{\pi}(s)$, and their definition is
+
 $$
 v_{\pi}(s) = E_{\pi}[G_t | S_{t} = s]
 $$
+
 A policy $\pi$ is a mapping from states to probabilities of selecting each possible action, so if an agent at time t follows the policy $\pi(a|s)$, it will calculate the probability that $A_t = a$ if $S_t = s$ for each a. 
 
 
 ### Bellman Equation for the value function given a policy
 
 Playing with $v_{\pi} = E_{\pi}[G_t | S_{t} = s]$ we can obtain the Bellman Equation:
+
 $$
 v_{\pi} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{pi}(s') \ \ \forall s \in S
 $$
+
 This equation expresses a relationship between the value of a state $s$ and the values of its successor states. Think of looking ahead from state $s$ to its possible successor states: starting from the root node $s$, the agent could take any action based on $\pi$, and from each of these actions the env could respond with a state $s'$ along with a reward $r$, depending on its dynamics $p$. The Bellman Equation averages over all the possibilities, weighting each possibility by its probability of occurring.
 
 
 ## Optimal Policies and Optimal Value Functions
 
 Solving an RL task means finding the optimal policy. A policy $\pi$ is better than $\pi'$ if its expected return is greater than that of $\pi'$ for all states. In other words
+
 $$
 \pi \geq \pi' \Leftrightarrow v_{\pi}(s) \geq v_{\pi'}(s)
 $$
+
 The optimal policy (or policies) is (are) $\pi_{*}$.  The optimal state-value function is 
+
 $$
 v_{*}(s) = max_{\pi} v_{\pi}(s) \ \forall s \in S
 $$
+
 and the optimal action-value function is:
+
 $$
 q_{*}(s, a) = max_{\pi} q_{\pi}(s, a) \ \forall s \in S, a \in A
 $$
+
 From these, we can write the Bellman Equation for the optimal action-value function
+
 $$
 q_{*}(s,a) = E[R_{t+1} + \gamma v_{*}(S_{t+1}) | S_t = s, A_t = a] = \sum_{s', r}p(s', r | s,a)[r + \gamma max_{a'} q_{*}(s', a')]
 $$
@@ -239,15 +258,19 @@ DP are a collections of algo used to compute optimal policies given a perfect mo
 
 ## Policy Evaluation (Prediction)
 
-How to compute the state-value function $v_{\pi}$ for an arbitrary $\pi$? With a policy evaluation or prediction problem. Given the Bellman equation for $v_{\pi}$:
+How to compute the state-value function $v_{\pi}$ for an arbitrary $\pi$? With a policy evaluation or prediction problem. Given the Bellman equation for $v_{\pi}$:+
+
 $$
 v_{\pi} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{pi}(s') \ \ \forall s \in S
 $$
+
 we can compute the solution, but it's computationally tedious. So we can use iterative solution methods: consider a sequence of approximate value functions $v_0, v_1, v_2, ...$, having chosen the initial approximation $v_0$ arbitrarily, and having computed every successive ones using the Bellman equation for $v_{\pi}$ but in the form of an update rule:
+
 $$
 v_{k+1} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{k}(s') \ \ \forall s \in S
 $$
-The sequence $\{v_k\} convergfes to $v_{\pi}$ as $k \to \infty$. This is the iterative policy evaluation. 
+
+The sequence $\{v_k\} converges to $v_{\pi}$ as $k \to \infty$. This is the iterative policy evaluation. 
 
 To implement it in a computer, you would have to use two arrays: one for the old values $v_k(s)$ and one for the new values $v_{k+1}(s)$, or update the values "in place". The in-place algo is chosen here:
 
