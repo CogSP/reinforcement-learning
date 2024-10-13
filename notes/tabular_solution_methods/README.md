@@ -242,7 +242,7 @@ $$
 From these, we can write the Bellman Equation for the optimal action-value function
 
 $$
-q_{*}(s,a) = E[R_{t+1} + \gamma v_{*}(S_{t+1}) | S_t = s, A_t = a] = \sum_{s', r}p(s', r | s,a)[r + \gamma max_{a'} q_{*}(s', a')]
+q_{\*}(s,a) = E[R_{t+1} + \gamma v_{*}(S_{t+1}) | S_t = s, A_t = a] = \sum_{s', r}p(s', r | s,a)[r + \gamma max_{a'} q_{*}(s', a')]
 $$
 
 
@@ -274,16 +274,106 @@ The sequence $\{v_k\} converges to $v_{\pi}$ as $k \to \infty$. This is the iter
 
 To implement it in a computer, you would have to use two arrays: one for the old values $v_k(s)$ and one for the new values $v_{k+1}(s)$, or update the values "in place". The in-place algo is chosen here:
 
+
+Input: $\pi$, the policy to be evaluated
+Algorithm parameter: a small threshold $\theta > 0$ determining accuracy of estimation 
+Initialize $V(s)$ arbitrarily, for $s \in S$ and $V(\text{terminal}) = 0$ 
+
+**Loop:**
+$\ \ \ \Delta \leftarrow 0$ 
+$\ \ \ \text{Loop for each } s \in S$: 
+$\ \ \ \ \ \  \ v \leftarrow V(s)$ 
+$\ \ \ \ \ \  V(s) \leftarrow \sum_{s'} \pi(a | s) \sum_{s', r}p(s', r | s,a)[r + \gamma V(s')]$
+$\ \ \ \ \ \ \Delta \leftarrow max(\Delta, |v - V(s)|)$
+$until\  \Delta < \theta$
+
+Formally, the iterative policy evaluation converges only in the limit, but in practice it must be halted short of this, using the threshold $\theta$, as shown in the algorithm above.
+
+
+## Policy Improvement
+
+We have see how to compute the value function. We want to do that to find a better policy. Suppose we have found $v_{\pi}$ for an arbitrary $\pi$. We know, in a certain state s, how good it is to follow the current policy from s (it's $v_{\pi}(s)), but would it be better or worse to change to the new policy? One way to answer this question is to consider selecting a in s and thereafter following the existing policy $\pi$. So we can compute $q_{\pi}(s,a)$ with the Bellman Equation. Now, is this $q_{\pi}(s,a)$ greater than $v_{\pi}(s)$? If it is greater, it's better to select $a$ once in $s$ and thereafter to follow $\pi$ than to follow $\pi$ all the time. If this is true, one would expect it to be better still to select $a$ every time $s$ is encountered, and that the new policy, that select $a$ in $s$, would in fact be a better one overall. This expectation is proven by the **policy improvement theorem**: let $\pi$ and $\pi'$ be policies s.t. $\forall s \in S$:
+
 $$
-\begin{enumerate}
-    \item Loop:
-    \begin{itemize}
-        \item For each state $s$:
-        \begin{align*}
-            V(s) &\leftarrow \sum_{a} \pi(a|s) \sum_{s', r} p(s', r|s, a) [r + \gamma V(s')] \\
-            \Delta &\leftarrow \max(\Delta, |v - V(s)|)
-        \end{align*}
-    \end{itemize}
-    \item until $\Delta < \theta$ (a small threshold)
-\end{enumerate}
+q_{\pi}(s, \pi'(s)) \geq v_{\pi}(s)
 $$
+
+Then $\pi'$ must be as good as, or better than $\pi$, so:
+
+$$
+v_{\pi'}(s) \geq v_{\pi}(s)
+$$
+
+So if $\pi'$ is equal to $\pi$ except for the action $a$ taken in $s$ (i.e. $\pi'(s) = a \neq \pi(s)), $\pi'$ should be used instead of $\pi$, since it's a better policy. It is a natural extension to consider changes between $\pi$ and $\pi'$ at all states, selecting at each state the action that appears best according to $q_{\pi}(s,a):
+
+$$
+\pi'(s) = argmax_{a} q_{\pi}(s,a) = … = argmax_{a} \sum_{s',r} p(s', r | s, a)[r + \gamma v_{\pi}(s')]
+$$
+
+This policy is called **greedy policy** and basically takes the action that looks best in the short term, according to $v_{\pi}$. This greedy policy will be as good as, or better than, the original policy. We are doing **policy improvement**. It can be shown that if $\pi'$ is as good as $\pi$, we have that $v_{\pi'}$ is $v_{\*}$ and so $\pi'$ and $\pi$ are both optimal policies. **Policy improvement thus must give us a strictly better policy except when the original policy is already optimal.**
+
+
+### Stochastic Policies 
+
+A stochastic policy $\pi$ specifies probabilities $\pi(a|s)$ for taking each action $a$ in each state $s$. All the ideas written above for the deterministic policies can be easily extended to the stochastic ones.
+
+
+## Policy Iteration
+
+Once a policy $\pi$ has been improved using $v_{\pi}$ to yield a better policy $\pi'$, we can compute $v_{\pi'}$ and improve it again to yield an even better $\pi''$, so we can obtain a sequence of **monotonically improving policies and value functions**:
+
+$$
+\pi_0 \to_{E} v_{\pi_0} \to{I} \pi_1 \to_{E} v_{\pi_1} \to{I} \pi_2 … \to_{I} \pi_{\*} \_to_{E} v_{\*}
+$$
+Where E denotes policy evaluation and I policy improvement. As we said, each policy is guaranteed to be a strict improvement over the previous one (unless it is already optimal). Since a finite MDP has only a finite number of deterministic policies, this process must converge to an optimal policy and its optimal value function in a finite number of iterations. This is policy iteration. The pseudocode is the following:
+
+
+1. Inizialization: 
+	$V(s) \in \mathbb{R}$ 
+	$\pi(s) \in A(s)$ arbitrarily $\forall s \in S$
+	V(terminal) = 0
+
+2. Policy Evaluation
+	**Loop:**
+$\ \ \ \Delta \leftarrow 0$ 
+$\ \ \ \text{Loop for each } s \in S$: 
+$\ \ \ \ \ \  \ v \leftarrow V(s)$ 
+$\ \ \ \ \ \  V(s) \leftarrow \sum_{s'} \pi(a | s) \sum_{s', r}p(s', r | s,a)[r + \gamma V(s')]$
+$\ \ \ \ \ \ \Delta \leftarrow max(\Delta, |v - V(s)|)$
+$until\  \Delta < \theta$
+
+3. Policy Improvement
+	$\text{policy-stable} \leftarrow true$
+	For each $s \in S$
+	$\ \ \ \text{old-action} \leftarrow \pi(s)$ 
+$\ \ \ \pi(s) \leftarrow argmax_{a}\sum_{s',r}p(s',r |s,a)[r + \gamma V(s')]$	 
+$\ \ \ \text{If old-action} \neq \pi(s), \text{then policy-stable} \leftarrow false$
+
+If policy-stable, then stop and return$V \approx v_{*}$ and $\pi \approx \pi_{*}$; else go to 2
+	
+	
+## Value Iteration
+
+One drawback to policy iteration is that each of its iterations involves policy evaluation, which may itself be a protracted iterative computation requiring multiple sweeps through the state set. We can truncate the policy iteration in several ways without losing the convergence guarantees of policy iteration. One important special case is when policy evaluation is stopped after just one sweep, namely one update of each state. In this case, we talk about value iteration. The value iteration algorithm can be written with just a simple update operation combining the policy improvement and the truncated policy evaluation in just one formula:
+
+$$
+v_{k+1}(s) = max_{a} \sum_{s',r} p(s', r | s,a) [r + \gamma v_{k}(s')]
+$$
+To be performed for all $s \in S$. For an arbitrary $v_0$, the sequence $\{v_k}$ converges to $v_{*}$. Here's the pseudo-code:
+
+
+Algorithm parameter: a small threshold $\theta > 0$ determining accuracy of estimation
+Initialize V(s), $\forall s \in S^{+}$, arbitrarily except that V(terminal) = 0
+
+**Loop**
+$\ \ \ \Delta \leftarrow 0$
+$\ \ \ \ \ \  v \leftarrow V(s)$
+$\ \ \ \ \ \ V(s) \leftarrow max_{a} \sum_{s',r} p(s', r |s,a)[ r + \gamma V(s')]$
+$\ \ \ \ \ \ \Delta \leftarrow max(\Delta, |v - V(s)|)$
+until $\Delta < \theta$
+
+Output a deterministic policy, $\pi \approx \pi_{*}$, s.t. 
+$\ \ \ \pi(s) = argmax_{a} \sum_{s',r} p(s', r | s, a)[r + \gamma V(s')]$
+
+
+As you can see we are combining one sweep of policy evaluation and one sweep of policy improvement in each of its sweeps.
