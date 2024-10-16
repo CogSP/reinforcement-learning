@@ -150,7 +150,7 @@ The Bayesian methods assume a known initial distribution over the action values 
 
 # Finite Markov Decision Processes
 
-MDP involves evaluative feedback as in bandits, but also an associative aspect: choosing different actions in different situations. MDP formalizes sequential decision making, where actions influence not just immediate reward, but also subsequent situations (states), through future rewards. MDP involves indeed the trade off between immediate and delayed rewards. While in bandits we estimate $q_{*}(a)$ for each action, in MDPs we estimate $q_{*}(s, a)$ for each action in each state, or we estimate the value $v_{*}(s)$ of each state given optimal action selection.
+MDP involves evaluative feedback as in bandits, but also an associative aspect: choosing different actions in different situations. MDP formalizes sequential decision making, where actions influence not just immediate reward, but also subsequent situations (states), through future rewards. MDP involves indeed the trade off between immediate and delayed rewards. While in bandits we estimate $q_{\*}(a)$ for each action, in MDPs we estimate $q_{\*}(s, a)$ for each action in each state, or we estimate the value $v_{\*}(s)$ of each state given optimal action selection.
 
 ## Agent-Environment Interface
 
