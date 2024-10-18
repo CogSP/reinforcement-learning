@@ -329,7 +329,7 @@ $$
 Where E denotes policy evaluation and I policy improvement. As we said, each policy is guaranteed to be a strict improvement over the previous one (unless it is already optimal). Since a finite MDP has only a finite number of deterministic policies, this process must converge to an optimal policy and its optimal value function in a finite number of iterations. This is policy iteration. The pseudocode is the following:
 
 
-<img src="images/policy-iteration.png" alt="policy iteration algorithm" width="393" height="219">
+<img src="images/policy-iteration.png" alt="policy iteration algorithm" width="631" height="639">
 
 
 
@@ -345,7 +345,7 @@ $$
 To be performed for all $s \in S$. For an arbitrary $v_0$, the sequence $\{v_k}$ converges to $v_{*}$. Here's the pseudo-code:
 
 
-<img src="images/value-iteration.png" alt="value iteration algorithm" width="393" height="219">
+<img src="images/value-iteration.png" alt="value iteration algorithm" width="860" height="449">
 
 
 As you can see we are combining one sweep of policy evaluation and one sweep of policy improvement in each of its sweeps.
