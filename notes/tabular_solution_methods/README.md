@@ -344,7 +344,7 @@ As you can see we are combining one sweep of policy evaluation and one sweep of 
 
 ## Finite Horizon MDP
 
-In infinite horizon MDPs there always exitss a deterministic policy $\pi*$ s.t. 
+In infinite horizon MDPs there always exists a deterministic policy $\pi*$ s.t. 
 
 $$
 v^{\pi \*} \geq v^{\pi}(s) \ \ \forall s, \pi
@@ -358,19 +358,20 @@ $$
 (S, A, R, T, H, \mu_0)
 $$
 
-Where the time-horizon $H \geq 0$ and the $s_0 \approx \mu_0$, where $\mu_0$ is the initial state distribution. How to find $V$ and $Q$ in finite horizon MDP?
+Where the time-horizon $H \geq 0$ and the $s_0 \approx \mu_0$, where $\mu_0$ is the initial state distribution. In these problem, we consider time-dependent policies. So a single policy $\pi$ is actually { $\pi_{t=0}, \pi_{t=1}, ..., \pi_{t=H-1}$ }. How to find $V$ and $Q$ in finite horizon MDP?
 
 $$
-V_{h}^{\pi}(s) = \mathbb{E}_{\pi}[\sum_{h}^{H-1} r(s_{h}, a_{h})]
+V_{h}^{\pi}(s) = \mathbb{E_{\pi}} [\sum_{h}^{H-1} r(s_{h}, a_{h})]
 $$
-There is no discount factor.
 
+As you can see, differently from Infinite-Horizon MDP, there is no discount factor.
 
 $$
-Q_{h}^{\pi}(s,a) = \mathbb{E}_{\pi}[\sum_{h}^{H-1} r(s_{h}, a_{h})] = r(s,a) + \mathbb{E}[V_{h+1}^{\pi}(s')]
+Q_{h}^{\pi}(s,a) = \mathbb{E_{\pi}}[\sum_{h}^{H-1} r(s_{h}, a_{h})] = r(s,a) + \mathbb{E}[V_{h+1}^{\pi}(s')]
 $$
 
 This problem is easier than the infinite horizon one. Let's prove it by reasoning backwards in time. We know that:
+
 $$
 Q_{H-1}^{\*}(s,a) = r(s,a)
 $$
@@ -422,4 +423,30 @@ $$
 c(x_t,u_t) = x_t^T Qx_t + u_t^T Ru_t
 $$
 
-With $Q \in \mathbb{R}^{d \times d}$ and $R \in \mathbb{R}^{k \times k}$ positive definite. As a result, there is a non-zero cost even when the control is zero ($u = 0$).
+With $Q \in \mathbb{R}^{d \times d}$ and $R \in \mathbb{R}^{k \times k}$ positive definite. As a result, there is a non-zero cost even when the control is zero ($u = 0$). The Bellman equations for $Q$ is the same as the one in the previous section, but with cost instead of reward
+
+$$
+Q_{h}^{\pi}(s,a) = c(x,u) + \mathbb{E}[V_{h+1}^{\*}(x')]
+$$
+
+With cost and transition function defined right above. With some algebric manipulation, and proving in the midtime that $V_{h}^{\*}(x_t) = x_{t}^T P_{h} x_{t}, with $P \in \mathbb{R}^{d \times d}, we arrive to
+
+$$
+Q_{h}^{\*}(x_{t}, u_{t}) = x_{t}^T Q x_{t} + u_{t}^T R u_{t} + (Ax_{t} + Bu_{t})^T P_{h+1}(Ax_{t} + Bu_{t})
+$$
+
+Since we want the policy, we have to calculate $\pi_{h}^{\*}(x) = argmin_{u} Q_{h}^{\*}(x,u)$. Now we have the policy at time $t = h$.
+
+Remember that our goal is to minimize $E_{\pi}[c_{H}(x_{H}) \  + \sum_{h=0}^{H-1} c_{h}(x_{h},u_{h})]$. That means that at $H$ we only have $c_{H}(x_{H))$, that we can se to 0 or $x_{H}^T Q x_{H}$. This is our base case. In the base case, we can set $P_h = 0$ or $Q_{final}$. Having these, we can find the value for our policy with the following LQR algorithm:
+
+
+<img src="images/LQR.png" alt="LQR" width="794" height="221">
+
+
+This is basically value iteration update done in closed form. Since V is the value, we will rename it to $J$ for this kind of problems, as is the cost-to-go.
+
+
+### LQR Extensions
+
+To apply it to Affine Systems, Systems with Stochasticity, Regulation around non-zero fixed point for non-lineary system, trajectory following for non-linear system and so on.
+
