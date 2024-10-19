@@ -169,7 +169,7 @@ $$
 This function $p$ defines the environment dynamics in the MDP. Since the new state and reward depends only on the **immediately preceding** state and action, the state must include information about all aspects of all the past agent-environment interaction. If it does, the state is said to have the **Markov Property**. Other quantities that we may want to know:
 - state transition probability: $p(s' | s, a) = Pr{S_t = s' | S_{t-1} = s, A_{t-1} = a}$
 - expected rewards for state-action pairs: $r(s,a) = E[R_t | S_{t-1} = s, A_{t-1} = a]$
-- expected rewards for state-action-next-state triples: $r(s,a,s') = E[R_t | S_{t-1} = s, A_{t-1} = a, S_t = s']
+- expected rewards for state-action-next-state triples: $r(s,a,s') = E[R_t | S_{t-1} = s, A_{t-1} = a, S_t = s']$
 
 
 ## Goals and Rewards
@@ -213,10 +213,11 @@ A policy $\pi$ is a mapping from states to probabilities of selecting each possi
 Playing with $v_{\pi} = E_{\pi}[G_t | S_{t} = s]$ we can obtain the Bellman Equation:
 
 $$
-v_{\pi} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{pi}(s') \ \ \forall s \in S
+v_{\pi} = sum_a \ \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{\pi}(s')] \ \ \forall s \in S
 $$
 
 This equation expresses a relationship between the value of a state $s$ and the values of its successor states. Think of looking ahead from state $s$ to its possible successor states: starting from the root node $s$, the agent could take any action based on $\pi$, and from each of these actions the env could respond with a state $s'$ along with a reward $r$, depending on its dynamics $p$. The Bellman Equation averages over all the possibilities, weighting each possibility by its probability of occurring.
+
 
 
 ## Optimal Policies and Optimal Value Functions
@@ -258,34 +259,23 @@ DP are a collections of algo used to compute optimal policies given a perfect mo
 
 ## Policy Evaluation (Prediction)
 
-How to compute the state-value function $v_{\pi}$ for an arbitrary $\pi$? With a policy evaluation or prediction problem. Given the Bellman equation for $v_{\pi}$:+
+How to compute the state-value function $v_{\pi}$ for an arbitrary $\pi$? With a policy evaluation or prediction problem. Given the Bellman equation for $v_{\pi}$:
 
 $$
-v_{\pi} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{pi}(s') \ \ \forall s \in S
+v_{\pi} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{\pi}(s')] \ \ \forall s \in S
 $$
 
 we can compute the solution, but it's computationally tedious. So we can use iterative solution methods: consider a sequence of approximate value functions $v_0, v_1, v_2, ...$, having chosen the initial approximation $v_0$ arbitrarily, and having computed every successive ones using the Bellman equation for $v_{\pi}$ but in the form of an update rule:
 
 $$
-v_{k+1} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{k}(s') \ \ \forall s \in S
+v_{k+1} = sum_a \pi(a|s) \sum_{s', r} p(s',r | s,a)[r + \gamma v_{k}(s')] \ \ \forall s \in S
 $$
 
 The sequence { $v_k$ } converges to $v_{\pi}$ as $k \to \infty$. This is the iterative policy evaluation. 
 
-To implement it in a computer, you would have to use two arrays: one for the old values $v_k(s)$ and one for the new values $v_{k+1}(s)$, or update the values "in place". The in-place algo is chosen here:
+To implement it in a computer, you would have to use two arrays: one for the old values $v_k(s)$ and one for the new values $v_{k+1}(s)$, or update the values "in place". 
 
-
-Input: $\pi$, the policy to be evaluated
-Algorithm parameter: a small threshold $\theta > 0$ determining accuracy of estimation 
-Initialize $V(s)$ arbitrarily, for $s \in S$ and $V(\text{terminal}) = 0$ 
-
-**Loop:**
-$\ \ \ \Delta \leftarrow 0$ 
-$\ \ \ \text{Loop for each } s \in S$: 
-$\ \ \ \ \ \  \ v \leftarrow V(s)$ 
-$\ \ \ \ \ \  V(s) \leftarrow \sum_{s'} \pi(a | s) \sum_{s', r}p(s', r | s,a)[r + \gamma V(s')]$
-$\ \ \ \ \ \ \Delta \leftarrow max(\Delta, |v - V(s)|)$
-$until\  \Delta < \theta$
+<img src="images/policy-evaluation.png" alt="policy evaluation algorithm" width="856" height="356">
 
 Formally, the iterative policy evaluation converges only in the limit, but in practice it must be halted short of this, using the threshold $\theta$, as shown in the algorithm above.
 
