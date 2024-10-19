@@ -21,7 +21,7 @@ We need to balance exploration and exploitation.
 Estimating $Q_t(a)$ and using the estimate to make action selection decision. We can estimate $Q_t(a)$ as the average of the reward actually received (sample-average method):
 
 $$
-Q_t(a) = \frac{\text{sum of rewards when a was taken, before t}}{\text{number of times a was taken before t}} = \frac{\sum_{i=1}^{t-1} R_i * 1_{A_i = a}}{\sum_{i=1}^{t-1} 1_{A_i = a}}. 
+Q_t(a) = \frac{\text{sum of rewards when a was taken, before t}}{\text{number of times a was taken before t}} = \frac{\sum_{i=1}^{t-1} R_i 1_{A_i = a}}{\sum_{i=1}^{t-1} 1_{A_i = a}}. 
 $$
 
 If denominator is zero $Q_t(a)$ is a default value. **By the law of large number**, if the denominator diverges, $Q_t(a)$ goes to $q_t(a)$.
@@ -84,7 +84,7 @@ $$
 Indeed, with some manipulation, this will lead to
 
 $$
-Q_{n+1} = (1 - \alpha)^n Q_1 + \sum_{i=1}^{n} \alpha * (1 - \alpha)^{n-i}R_i
+Q_{n+1} = (1 - \alpha)^n Q_1 + \sum_{i=1}^{n} \alpha  (1 - \alpha)^{n-i}R_i
 $$
 
 that is a weighted average of past rewards and the initial estimate $Q_1$ (the motivation for calling this weighted average are on the manual).
@@ -228,16 +228,16 @@ $$
 \pi \geq \pi' \Leftrightarrow v_{\pi}(s) \geq v_{\pi'}(s)
 $$
 
-The optimal policy (or policies) is (are) $\pi_{*}$.  The optimal state-value function is 
+The optimal policy (or policies) is (are) $\pi_{\*}$.  The optimal state-value function is 
 
 $$
-v_{*}(s) = max_{\pi} v_{\pi}(s) \ \forall s \in S
+v_{\*}(s) = max_{\pi} v_{\pi}(s) \ \forall s \in S
 $$
 
 and the optimal action-value function is:
 
 $$
-q_{*}(s, a) = max_{\pi} q_{\pi}(s, a) \ \forall s \in S, a \in A
+q_{\*}(s, a) = max_{\pi} q_{\pi}(s, a) \ \forall s \in S, a \in A
 $$
 
 From these, we can write the Bellman Equation for the optimal action-value function
@@ -332,7 +332,7 @@ $$
 v_{k+1}(s) = max_{a} \sum_{s',r} p(s', r | s,a) [r + \gamma v_{k}(s')]
 $$
 
-To be performed for all $s \in S$. For an arbitrary $v_0$, the sequence $\{v_k}$ converges to $v_{*}$. Here's the pseudo-code:
+To be performed for all $s \in S$. For an arbitrary $v_0$, the sequence $\{v_k}$ converges to $v_{\*}$. Here's the pseudo-code:
 
 
 <img src="images/value-iteration.png" alt="value iteration algorithm" width="860" height="449">
