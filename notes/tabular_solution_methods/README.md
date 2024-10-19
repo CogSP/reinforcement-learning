@@ -339,3 +339,87 @@ To be performed for all $s \in S$. For an arbitrary $v_0$, the sequence $\{v_k}$
 
 
 As you can see we are combining one sweep of policy evaluation and one sweep of policy improvement in each of its sweeps.
+
+
+
+## Finite Horizon MDP
+
+In infinite horizon MDPs there always exitss a deterministic policy $\pi*$ s.t. 
+
+$$
+v^{\pi \*} \geq v^{\pi}(s) \ \ \forall s, \pi
+$$
+
+In infinite horizon MDP $(S, A, T, R)$ the discounted setting is the following: $\gamma \in [0, 1]$ with $\gamma = 0$ meaning I only care about immediate rewards and $\gamma = 1$ meaning the immediate and future rewards are equally important.
+
+Now we are dealing with Finite Horizon MDPs, their formulation is: 
+
+$$
+(S, A, R, T, H, \mu_0)
+$$
+
+Where the time-horizon $H \geq 0$ and the $s_0 \approx \mu_0$, where $\mu_0$ is the initial state distribution. How to find $V$ and $Q$ in finite horizon MDP?
+
+$$
+V_{h}^{\pi}(s) = \mathbb{E}_{\pi}[\sum_{h}^{H-1} r(s_{h}, a_{h})]
+$$
+There is no discount factor.
+
+
+$$
+Q_{h}^{\pi}(s,a) = \mathbb{E}_{\pi}[\sum_{h}^{H-1} r(s_{h}, a_{h})] = r(s,a) + \mathbb{E}[V_{h+1}^{\pi}(s')]
+$$
+
+This problem is easier than the infinite horizon one. Let's prove it by reasoning backwards in time. We know that:
+$$
+Q_{H-1}^{\*}(s,a) = r(s,a)
+$$
+
+$$
+\pi_{H-1}^{*}(s) = argmax_{a} Q_{H-1}^{\*}(s,a)
+$$
+
+
+$$
+V_{H-1}^{*}(s) = max_{a} Q_{H-1}^{\*}(s,a) = Q_{H-1}^{\*}(s,\pi_{H-1}^{\*}(s))
+$$
+
+Having found $V_{H-1}$, we can now reason about H-2 using bellman equation, so we have:
+
+$$
+Q_{h}^{\pi}(s,a) = r(s,a) + \mathbb{E}[V_{h+1}^{\pi}(s')]
+$$
+
+
+## Control Problems
+
+So far we assumed discrete state and action spaces, but in control problems we have real numbers. Considering $x$ as the state and $u$ as the action, oru goal is to minimize the cost instead of maximizing the reward. Precisely, given a dynamical sistem with NL transition function $f$, state $x \in \mathbb{R}^d$ and control $u \in \mathbb{R}^k$ we want to find $\pi$ s.t. 
+
+$$
+\text{minimize } E_{\pi}[c_{H}(x_{H}) \  + \sum_{h=0}^{H-1} c_{h}(x_{h},u_{h})]
+$$
+
+where $u_{h} = \pi(x_{h})$ and $x_0 \approx \mu_0$. This is basically a finite-horizon MDP problem.
+
+
+### Approach 1: discretize
+
+We discretize $x$ and $u$ in a grid. Their number increase exponentially with $d$ and $k$. This is feasible up to 5 or 6 dimensional state spaces (Bellman's Curse of Dimensionality).
+
+### Approach 2: work in continuous space, starting from simplified problems
+
+#### Linear systems:
+
+A system of the type:
+
+$$
+x_{t+1} = Ax_{t} + Bu_{t}
+$$
+
+Is our transition function. Consider then a cost function of this kind
+
+$$
+c(x_t,u_t) = x_t^T Qx_t + u_t^T Ru_t
+$$
+
+With $Q \in \mathbb{R}^{d \times d}$ and $R \in \mathbb{R}^{k \times k}$ positive definite. As a result, there is a non-zero cost even when the control is zero ($u = 0$).
